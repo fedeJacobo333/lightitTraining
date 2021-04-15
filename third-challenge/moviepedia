@@ -1,0 +1,15 @@
+#! /usr/bin/env php
+
+<?php
+
+use Acme\movieCommand;
+use GuzzleHttp\Client;
+use Symfony\Component\Console\Application;
+
+require 'vendor/autoload.php';
+
+$app = new Application('MoviePedia', '1.0');
+
+$app->add(new MovieCommand(new Client()));
+
+$app->run();
