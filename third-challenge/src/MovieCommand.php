@@ -5,6 +5,8 @@ namespace Acme;
 
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -35,12 +37,27 @@ class MovieCommand extends Command
         $plotOpcion = $input->getOption('fullPlot');
         if($plotOpcion != null) $plot = 'full';
 
-        $return = $this->download($title, $plot);
+        $return = $this->getMovieData($title, $plot);
 
-        $output->writeln($return);
+        $dataArray = json_decode($return);
+
+        $rows = [];
+        foreach ($dataArray as $key => $value) {
+            if(is_string($key) && is_string($value))
+                array_push($rows, [$key, $value]);
+        }
+
+        $title = $dataArray->{'Title'};
+        $year = $dataArray->{'Year'};
+
+        $table = new Table($output);
+
+        $table->setHeaders([$title, $year])
+            ->setRows($rows);
+        $table->render();
     }
 
-    private function download($title, $plot){
+    private function getMovieData($title, $plot){
         $url = 'http://www.omdbapi.com/?apikey=d344f0d6&t='.$title.'&plot='.$plot;
         $response = $this->client->get($url)->getBody()->getContents();
 
