@@ -34,18 +34,14 @@ class MovieCommand extends Command
     {
         $title = $input->getArgument('name');
         $plot = 'short';
-        $plotOpcion = $input->getOption('fullPlot');
-        if($plotOpcion != null) $plot = 'full';
+        $plotOption = $input->getOption('fullPlot');
+        if($plotOption != null) $plot = 'full';
 
         $return = $this->getMovieData($title, $plot);
 
         $dataArray = json_decode($return);
 
-        $rows = [];
-        foreach ($dataArray as $key => $value) {
-            if(is_string($key) && is_string($value))
-                array_push($rows, [$key, $value]);
-        }
+        $rows = $this->createRows($dataArray);
 
         $title = $dataArray->{'Title'};
         $year = $dataArray->{'Year'};
@@ -62,5 +58,15 @@ class MovieCommand extends Command
         $response = $this->client->get($url)->getBody()->getContents();
 
         return $response;
+    }
+
+    private function createRows($dataArray)
+    {
+        $rows = [];
+        foreach ($dataArray as $key => $value) {
+            if(is_string($key) && is_string($value))
+                array_push($rows, [$key, $value]);
+        }
+        return $rows;
     }
 }
